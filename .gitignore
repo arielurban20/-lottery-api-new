@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.local
+all_states_dom_report.json
+all_states_dom_report_v2.json
+audit_bad_number_counts_report.json
+audit_bad_number_counts_report.txt
+audit_unmatched_games_report.json
+audit_unmatched_games_report.txt
+compare_all_live_report.json
+kansas_debug_page.html
+kansas_dom_results.json
+state_pages_preview_report.json
+strict_multistate_state_pages_report.json
+ultimo_scrape.txt
