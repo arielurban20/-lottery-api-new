@@ -3,6 +3,16 @@ from sqlalchemy.dialects.postgresql import JSONB
 from app.database import Base
 
 
+class State(Base):
+    __tablename__ = "states"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    slug = Column(String, nullable=False, unique=True)
+    source_url = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True)
+
+
 class SourceProvider(Base):
     __tablename__ = "source_providers"
 
