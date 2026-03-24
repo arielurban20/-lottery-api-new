@@ -6,13 +6,11 @@ from app.routes import draws, stats, stats_v2
 
 app = FastAPI(title="Lottery API Clean")
 
+# CORS TEMPORALMENTE ABIERTO PARA LOVABLE
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://state-win-nexus.lovable.app",
-    ],
-    allow_origin_regex=r"https://.*\.lovable\.app",
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
