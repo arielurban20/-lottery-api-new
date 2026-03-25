@@ -11,14 +11,17 @@ from app.models import Draw, Game
 router = APIRouter(prefix="/draws", tags=["Draws"])
 
 
-MULTI_STATE_GAME_SLUGS = {
-    "powerball",
-    "powerball-double-play",
-    "mega-millions",
-    "millionaire-for-life",
-    "lotto-america",
-    "2by2",
+VALID_MULTI_STATE_BY_STATE = {
+    "ny": {"powerball", "mega-millions"},
+    "nj": {"powerball", "mega-millions", "powerball-double-play", "millionaire-for-life"},
+    "fl": {"powerball", "mega-millions", "powerball-double-play"},
+    "ca": {"powerball", "mega-millions", "powerball-double-play"},
+    "dc": {"powerball", "mega-millions", "lotto-america", "2by2", "millionaire-for-life", "powerball-double-play"},
 }
+
+
+def get_allowed_multistate_for_state(state_slug: str) -> set[str]:
+    return VALID_MULTI_STATE_BY_STATE.get(state_slug.lower(), set())
 
 
 def get_db() -> Session:
@@ -76,11 +79,15 @@ def get_latest_draws(
         games = db.execute(select(Game).where(Game.is_active == True)).scalars().all()
         results = []
 
+        allowed_multistate = get_allowed_multistate_for_state(state) if state else set()
+
         for game in games:
             if state:
-                if game.slug in MULTI_STATE_GAME_SLUGS:
+                if game.slug.endswith(f"-{state.lower()}"):
                     pass
-                elif not game.slug.endswith(f"-{state.lower()}"):
+                elif game.slug in allowed_multistate:
+                    pass
+                else:
                     continue
 
             stmt = (
@@ -156,6 +163,7 @@ def get_draws_by_state(
     db = get_db()
     try:
         state_slug = state_slug.lower()
+        allowed_multistate = get_allowed_multistate_for_state(state_slug)
 
         games = db.execute(
             select(Game).where(Game.is_active == True)
@@ -163,7 +171,7 @@ def get_draws_by_state(
 
         matched_games = []
         for game in games:
-            if game.slug.endswith(f"-{state_slug}") or game.slug in MULTI_STATE_GAME_SLUGS:
+            if game.slug.endswith(f"-{state_slug}") or game.slug in allowed_multistate:
                 matched_games.append(game)
 
         if not matched_games:
@@ -248,8 +256,9 @@ def search_draws(
 
         if state:
             state = state.lower()
+            allowed_multistate = get_allowed_multistate_for_state(state)
             stmt = stmt.where(
-                (Game.slug.like(f"%-{state}")) | (Game.slug.in_(MULTI_STATE_GAME_SLUGS))
+                (Game.slug.like(f"%-{state}")) | (Game.slug.in_(allowed_multistate))
             )
 
         if draw_type:
