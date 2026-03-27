@@ -12,6 +12,7 @@ router = APIRouter(prefix="/draws", tags=["Draws"])
 
 
 VALID_MULTI_STATE_BY_STATE = {
+    "pr": {"powerball", "powerball-double-play"},
     "ny": {"powerball", "mega-millions"},
     "nj": {"powerball", "mega-millions", "powerball-double-play", "millionaire-for-life"},
     "fl": {"powerball", "mega-millions", "powerball-double-play"},
