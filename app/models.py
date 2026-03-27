@@ -7,6 +7,7 @@ class State(Base):
     __tablename__ = "states"
 
     id = Column(Integer, primary_key=True)
+    country_code = Column(String, nullable=True, default="US")
     name = Column(String, nullable=False)
     slug = Column(String, nullable=False, unique=True)
     source_url = Column(Text, nullable=True)
@@ -66,11 +67,20 @@ class Draw(Base):
     draw_date = Column(Date, nullable=False)
     draw_type = Column(String, nullable=False, default="main")
     draw_time = Column(String, nullable=True)
+
     main_numbers = Column(JSONB, nullable=True)
     bonus_number = Column(String, nullable=True)
     multiplier = Column(String, nullable=True)
+
     jackpot = Column(String, nullable=True)
+    jackpot_change = Column(String, nullable=True)
+
     cash_payout = Column(String, nullable=True)
     secondary_draws = Column(JSONB, nullable=True)
+
     notes = Column(Text, nullable=True)
     source_url = Column(Text, nullable=True)
+
+    next_draw_text = Column(Text, nullable=True)
+    next_draw_timezone = Column(String, nullable=True)
+    next_draw_relative = Column(String, nullable=True)

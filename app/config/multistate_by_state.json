@@ -1,0 +1,266 @@
+{
+  "az": [
+    "mega-millions",
+    "powerball"
+  ],
+  "ar": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "ca": [
+    "mega-millions",
+    "powerball"
+  ],
+  "co": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ct": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "de": [
+    "lotto-america",
+    "mega-millions",
+    "powerball"
+  ],
+  "fl": [
+    "mega-millions",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ga": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "id": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "il": [
+    "mega-millions",
+    "powerball"
+  ],
+  "in": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ia": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ks": [
+    "2by2",
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ky": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "la": [
+    "mega-millions",
+    "powerball"
+  ],
+  "me": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "md": [
+    "mega-millions",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ma": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "mi": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "mn": [
+    "lotto-america",
+    "mega-millions",
+    "powerball"
+  ],
+  "ms": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "mo": [
+    "mega-millions",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "mt": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ne": [
+    "2by2",
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "nh": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "nj": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "nm": [
+    "lotto-america",
+    "mega-millions",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ny": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "nc": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "nd": [
+    "2by2",
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "oh": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "ok": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "or": [
+    "mega-millions",
+    "powerball"
+  ],
+  "pa": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "pr": [
+    "powerball",
+    "powerball-double-play"
+  ],
+  "ri": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "sc": [
+    "mega-millions",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "sd": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "tn": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "tx": [
+    "mega-millions",
+    "powerball"
+  ],
+  "vt": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "va": [
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "wa": [
+    "mega-millions",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "dc": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball",
+    "powerball-double-play"
+  ],
+  "wv": [
+    "lotto-america",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ],
+  "wi": [
+    "mega-millions",
+    "powerball"
+  ],
+  "wy": [
+    "2by2",
+    "mega-millions",
+    "millionaire-for-life",
+    "powerball"
+  ]
+}

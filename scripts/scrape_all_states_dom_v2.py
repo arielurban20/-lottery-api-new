@@ -131,52 +131,323 @@ def extract_primary_number_list(section, parser_type: str = "standard", final_sl
     return []
 
 
-def extract_text_extras(section) -> tuple[str | None, str | None, str]:
+def extract_text_extras(section) -> dict:
+    def safe_text(locator) -> str:
+        try:
+            if locator.count() > 0:
+                texts = []
+                for i in range(locator.count()):
+                    try:
+                        txt = clean(locator.nth(i).inner_text())
+                        if txt:
+                            texts.append(txt)
+                    except Exception:
+                        pass
+                return " | ".join(texts)
+        except Exception:
+            pass
+        return ""
+
     full_text = clean(section.inner_text())
-    bonus_number = None
-    multiplier = None
+
+    extra_chunks = [
+        safe_text(section.locator(".jackpot")),
+        safe_text(section.locator(".nextdraw")),
+        safe_text(section.locator(".nextdrawing")),
+        safe_text(section.locator(".resultsnext")),
+        safe_text(section.locator(".drawinfo")),
+        safe_text(section.locator(".gameinfo")),
+        safe_text(section.locator(".prize")),
+        safe_text(section.locator(".panel")),
+        safe_text(section.locator("p")),
+        safe_text(section.locator("small")),
+        safe_text(section.locator("strong")),
+        safe_text(section.locator("span")),
+    ]
+
+    combined_text = " | ".join([full_text] + [x for x in extra_chunks if x])
+    combined_text = clean(combined_text)
+
+    data = {
+        "bonus_number": None,
+        "multiplier": None,
+        "jackpot": None,
+        "jackpot_change": None,
+        "next_draw_text": None,
+        "next_draw_timezone": None,
+        "next_draw_relative": None,
+        "full_text": combined_text,
+    }
 
     bonus_patterns = [
-        r"Cash Ball:\s*(\d{1,2})",
-        r"Star Ball:\s*(\d{1,2})",
-        r"Powerball:\s*(\d{1,2})",
-        r"Mega Ball:\s*(\d{1,2})",
-        r"Mega Number:\s*(\d{1,2})",
-        r"Millionaire Ball:\s*(\d{1,2})",
-        r"Bullseye:\s*(\d{1,2})",
-        r"Fireball:\s*(\d{1,2})",
-        r"Wild Money:\s*(\d{1,2})",
-        r"Kicker:\s*(\d+)",
-        r"Cash Ball 225:\s*(\d{1,2})",
-        r"Bonus Ball:\s*(\d{1,2})",
-        r"Bonus Number:\s*(\d{1,2})",
-        r"Bolo Cash:\s*(\d{1,2})",
-        r"Megaball:\s*(\d{1,2})",
+        r"Cash Ball[:\s]+(\d{1,2})",
+        r"Star Ball[:\s]+(\d{1,2})",
+        r"Powerball[:\s]+(\d{1,2})",
+        r"Mega Ball[:\s]+(\d{1,2})",
+        r"Mega Number[:\s]+(\d{1,2})",
+        r"Millionaire Ball[:\s]+(\d{1,2})",
+        r"Bullseye[:\s]+(\d{1,2})",
+        r"Fireball[:\s]+(\d{1,2})",
+        r"Wild Money[:\s]+(\d{1,2})",
+        r"Kicker[:\s]+(\d+)",
+        r"Cash Ball 225[:\s]+(\d{1,2})",
+        r"Bonus Ball[:\s]+(\d{1,2})",
+        r"Bonus Number[:\s]+(\d{1,2})",
+        r"Bolo Cash[:\s]+(\d{1,2})",
+        r"Megaball[:\s]+(\d{1,2})",
     ]
 
     mult_patterns = [
-        r"All Star Bonus:\s*(\d{1,2})",
-        r"Power Play:\s*([Xx]?\d+)",
-        r"Megaplier:\s*([Xx]?\d+)",
-        r"Multiplier:\s*([Xx]?\d+)",
-        r"Plus:\s*([Xx]?\d+)",
-        r"Multiplicador:\s*([Xx]?\d+)",
+        r"All Star Bonus[:\s]+([Xx]?\d+)",
+        r"Power Play[:\s]+([Xx]?\d+)",
+        r"Megaplier[:\s]+([Xx]?\d+)",
+        r"Multiplier[:\s]+([Xx]?\d+)",
+        r"Plus[:\s]+([Xx]?\d+)",
+        r"Multiplicador[:\s]+([Xx]?\d+)",
+    ]
+
+    jackpot_patterns = [
+        r"Next Jackpot[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Jackpot[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Estimated Jackpot[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Estimated Grand Prize[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Grand Prize[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Top Prize[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Cash Value[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Annuity[:\s]+(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+    ]
+
+    jackpot_change_patterns = [
+        r"Change from last[:\s]+([+\-]?\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Jackpot Change[:\s]+([+\-]?\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Change[:\s]+([+\-]?\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+    ]
+
+    next_draw_patterns = [
+        r"Next Drawing[:\s]+([A-Za-z]{3},\s*[A-Za-z]{3}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s*(?:am|pm))",
+        r"Next Drawing[:\s]+([A-Za-z]+,\s+[A-Za-z]+\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s*(?:am|pm))",
+        r"Next Drawing[:\s]+([A-Za-z]{3},\s*[A-Za-z]{3}\s+\d{1,2},\s+\d{4})",
+        r"Next Draw[:\s]+([A-Za-z]{3},\s*[A-Za-z]{3}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s*(?:am|pm))",
+        r"Next Draw[:\s]+([A-Za-z]+,\s+[A-Za-z]+\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s*(?:am|pm))",
+    ]
+
+    timezone_patterns = [
+        r"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+Time\s*\(GMT[^\)]*\))",
+        r"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+Time\s*\(UTC[^\)]*\))",
+        r"\b(Eastern Time|Central Time|Mountain Time|Pacific Time)\b",
+        r"\b(ET|CT|MT|PT)\b",
+    ]
+
+    relative_patterns = [
+        r"(\d+\s+(?:minute|minutes|hour|hours|day|days)\s+from\s+now)",
+        r"(in\s+\d+\s*(?:m|h|d))",
+        r"(in\s+\d+\s+(?:minutes|hours|days))",
     ]
 
     for pattern in bonus_patterns:
-        m = re.search(pattern, full_text, re.IGNORECASE)
+        m = re.search(pattern, combined_text, re.IGNORECASE)
         if m:
-            bonus_number = m.group(1).strip()
+            data["bonus_number"] = m.group(1).strip()
             break
 
     for pattern in mult_patterns:
-        m = re.search(pattern, full_text, re.IGNORECASE)
+        m = re.search(pattern, combined_text, re.IGNORECASE)
         if m:
             value = m.group(1).strip().upper()
-            multiplier = value if value.startswith("X") else f"X{value}"
+            data["multiplier"] = value if value.startswith("X") else f"X{value}"
             break
 
-    return bonus_number, multiplier, full_text
+    for pattern in jackpot_patterns:
+        m = re.search(pattern, combined_text, re.IGNORECASE)
+        if m:
+            data["jackpot"] = m.group(1).strip()
+            break
+
+    for pattern in jackpot_change_patterns:
+        m = re.search(pattern, combined_text, re.IGNORECASE)
+        if m:
+            data["jackpot_change"] = m.group(1).strip()
+            break
+
+    for pattern in next_draw_patterns:
+        m = re.search(pattern, combined_text, re.IGNORECASE)
+        if m:
+            data["next_draw_text"] = clean(m.group(1))
+            break
+
+    for pattern in timezone_patterns:
+        m = re.search(pattern, combined_text, re.IGNORECASE)
+        if m:
+            data["next_draw_timezone"] = clean(m.group(1))
+            break
+
+    for pattern in relative_patterns:
+        m = re.search(pattern, combined_text, re.IGNORECASE)
+        if m:
+            data["next_draw_relative"] = clean(m.group(1))
+            break
+
+    return data
+
+
+def extract_page_level_extras(full_page_text: str, title: str) -> dict:
+    page_text = clean(full_page_text)
+    title_clean = clean(title)
+
+    data = {
+        "jackpot": None,
+        "jackpot_change": None,
+        "next_draw_text": None,
+        "next_draw_timezone": None,
+        "next_draw_relative": None,
+    }
+
+    # títulos conocidos para cortar el bloque antes del siguiente juego
+    known_titles = [
+        "Powerball Double Play",
+        "Powerball",
+        "Mega Millions",
+        "Millionaire for Life",
+        "2by2",
+        "Lotto America",
+        "Cowboy Draw",
+        "Cash Pop",
+        "Fantasy 5",
+        "Pick 2",
+        "Pick 3",
+        "Pick 4",
+        "Pick 5",
+        "Take 5",
+        "Numbers",
+        "Win 4",
+        "Lotto",
+        "Daily 3",
+        "Daily 4",
+        "Daily Derby",
+        "SuperLotto Plus",
+        "Jackpot Triple Play",
+        "DC-3",
+        "DC-4",
+        "DC-5",
+        "Pega 2",
+        "Pega 3",
+        "Pega 4",
+        "Revancha",
+        "Loto Cash",
+        "Loteria Tradicional",
+    ]
+
+    # Buscar todas las ocurrencias del título y usar la que realmente pertenece
+    # al bloque del juego, no al encabezado descriptivo de la página.
+    matches = list(re.finditer(re.escape(title_clean), page_text, re.IGNORECASE))
+    if not matches:
+        return data
+
+    best_chunk = None
+
+    for match in matches:
+        start = match.start()
+        tail = page_text[start:start + 1800]
+
+        # Este filtro obliga a que sea un bloque real del juego:
+        # debe contener fecha, Prizes/Odds o Speak, Past Results o Next Drawing.
+        looks_like_game_block = (
+            re.search(r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s+[A-Za-z]+\s+\d{1,2},\s+\d{4}", tail, re.IGNORECASE)
+            or "Prizes/Odds" in tail
+            or "Speak" in tail
+            or "Past Results" in tail
+            or "Next Drawing:" in tail
+        )
+
+        if not looks_like_game_block:
+            continue
+
+        next_positions = []
+        for other_title in known_titles:
+            other_title_clean = clean(other_title)
+            if other_title_clean.lower() == title_clean.lower():
+                continue
+
+            other_match = re.search(re.escape(other_title_clean), tail, re.IGNORECASE)
+            if other_match and other_match.start() > 0:
+                next_positions.append(other_match.start())
+
+        end = min(next_positions) if next_positions else min(len(tail), 1800)
+        chunk = clean(tail[:end])
+
+        if "Next Drawing:" in chunk or "Next Jackpot:" in chunk or "Past Results" in chunk:
+            best_chunk = chunk
+            break
+
+        if best_chunk is None:
+            best_chunk = chunk
+
+    if not best_chunk:
+        return data
+
+    chunk = best_chunk
+
+    next_draw_patterns = [
+        r"Next Drawing:\s*([A-Za-z]{3},\s*[A-Za-z]{3}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s*(?:am|pm))",
+        r"Next Drawing:\s*([A-Za-z]+,\s+[A-Za-z]+\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s*(?:am|pm))",
+        r"Next Drawing:\s*([A-Za-z]{3},\s*[A-Za-z]{3}\s+\d{1,2},\s+\d{4})",
+    ]
+
+    jackpot_patterns = [
+        r"Next Jackpot:\s*(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Estimated Jackpot:\s*(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Jackpot:\s*(\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+    ]
+
+    jackpot_change_patterns = [
+        r"Change from last:\s*([+\-]?\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+        r"Jackpot Change:\s*([+\-]?\$[0-9,\.]+(?:\s*(?:Million|Billion|Thousand))?)",
+    ]
+
+    timezone_patterns = [
+        r"(Eastern Time\s*\(GMT[^\)]*\))",
+        r"(Central Time\s*\(GMT[^\)]*\))",
+        r"(Mountain Time\s*\(GMT[^\)]*\))",
+        r"(Pacific Time\s*\(GMT[^\)]*\))",
+        r"\b(Eastern Time|Central Time|Mountain Time|Pacific Time)\b",
+    ]
+
+    relative_patterns = [
+        r"(\d+\s+(?:minute|minutes|hour|hours|day|days)\s+from\s+now)",
+        r"(in\s+\d+\s+(?:minutes|hours|days))",
+    ]
+
+    for pattern in next_draw_patterns:
+        m = re.search(pattern, chunk, re.IGNORECASE)
+        if m:
+            data["next_draw_text"] = clean(m.group(1))
+            break
+
+    for pattern in jackpot_patterns:
+        m = re.search(pattern, chunk, re.IGNORECASE)
+        if m:
+            data["jackpot"] = clean(m.group(1))
+            break
+
+    for pattern in jackpot_change_patterns:
+        m = re.search(pattern, chunk, re.IGNORECASE)
+        if m:
+            data["jackpot_change"] = clean(m.group(1))
+            break
+
+    for pattern in timezone_patterns:
+        m = re.search(pattern, chunk, re.IGNORECASE)
+        if m:
+            data["next_draw_timezone"] = clean(m.group(1))
+            break
+
+    for pattern in relative_patterns:
+        m = re.search(pattern, chunk, re.IGNORECASE)
+        if m:
+            data["next_draw_relative"] = clean(m.group(1))
+            break
+
+    return data
 
 
 def validate_entry(
@@ -210,7 +481,6 @@ def validate_entry(
     if expected_bonus == 0 and has_bonus:
         return False
 
-    # validación especial para MyDaY
     if final_slug == "myday-ne":
         if len(main_numbers) != 3:
             return False
@@ -241,6 +511,11 @@ def save_draw(
     main_numbers: list[int],
     bonus_number,
     multiplier,
+    jackpot,
+    jackpot_change,
+    next_draw_text,
+    next_draw_timezone,
+    next_draw_relative,
     source_url: str,
     raw_payload: dict,
     notes: str,
@@ -259,8 +534,18 @@ def save_draw(
             existing.main_numbers = main_numbers
             existing.bonus_number = bonus_number
             existing.multiplier = multiplier
+            existing.jackpot = jackpot
             existing.source_url = source_url
             existing.notes = notes
+
+            if hasattr(existing, "jackpot_change"):
+                existing.jackpot_change = jackpot_change
+            if hasattr(existing, "next_draw_text"):
+                existing.next_draw_text = next_draw_text
+            if hasattr(existing, "next_draw_timezone"):
+                existing.next_draw_timezone = next_draw_timezone
+            if hasattr(existing, "next_draw_relative"):
+                existing.next_draw_relative = next_draw_relative
 
             if hasattr(existing, "raw_payload"):
                 existing.raw_payload = raw_payload
@@ -284,12 +569,21 @@ def save_draw(
             main_numbers=main_numbers,
             bonus_number=bonus_number,
             multiplier=multiplier,
-            jackpot=None,
+            jackpot=jackpot,
             cash_payout=None,
             secondary_draws=None,
             notes=notes,
             source_url=source_url,
         )
+
+        if hasattr(row, "jackpot_change"):
+            row.jackpot_change = jackpot_change
+        if hasattr(row, "next_draw_text"):
+            row.next_draw_text = next_draw_text
+        if hasattr(row, "next_draw_timezone"):
+            row.next_draw_timezone = next_draw_timezone
+        if hasattr(row, "next_draw_relative"):
+            row.next_draw_relative = next_draw_relative
 
         if hasattr(row, "raw_payload"):
             row.raw_payload = raw_payload
@@ -355,6 +649,7 @@ def get_or_create_game_in_db(
 def scrape_state(page, state: dict, games_by_slug: dict[str, Game]):
     page.goto(state["source_url"], wait_until="domcontentloaded", timeout=120000)
     page.wait_for_timeout(5000)
+    full_page_text = clean(page.locator("body").inner_text())
 
     sections = page.locator("section")
     results = []
@@ -396,7 +691,26 @@ def scrape_state(page, state: dict, games_by_slug: dict[str, Game]):
             parser_type=parser_type,
             final_slug=final_slug,
         )
-        bonus_number, multiplier, debug_text = extract_text_extras(section)
+
+        extras = extract_text_extras(section)
+        page_extras = extract_page_level_extras(full_page_text, title)
+       
+        if final_slug in {"mega-millions", "powerball", "powerball-double-play"}:
+         print("\nDEBUG EXTRAS")
+         print("STATE:", state["slug"])
+         print("TITLE:", title)
+         print("FINAL SLUG:", final_slug)
+         print("PAGE EXTRAS:", page_extras)
+
+        bonus_number = extras["bonus_number"]
+        multiplier = extras["multiplier"]
+        debug_text = extras["full_text"]
+
+        jackpot = extras["jackpot"] or page_extras["jackpot"]
+        jackpot_change = extras["jackpot_change"] or page_extras["jackpot_change"]
+        next_draw_text = extras["next_draw_text"] or page_extras["next_draw_text"]
+        next_draw_timezone = extras["next_draw_timezone"] or page_extras["next_draw_timezone"]
+        next_draw_relative = extras["next_draw_relative"] or page_extras["next_draw_relative"]
 
         parts = split_main_and_bonus(
             game_slug=final_slug,
@@ -421,6 +735,11 @@ def scrape_state(page, state: dict, games_by_slug: dict[str, Game]):
             "main_numbers": main_numbers,
             "bonus_number": final_bonus_number,
             "multiplier": final_multiplier,
+            "jackpot": jackpot,
+            "jackpot_change": jackpot_change,
+            "next_draw_text": next_draw_text,
+            "next_draw_timezone": next_draw_timezone,
+            "next_draw_relative": next_draw_relative,
             "debug_text": debug_text[:2000],
         }
 
@@ -475,6 +794,11 @@ def scrape_state(page, state: dict, games_by_slug: dict[str, Game]):
             main_numbers=main_numbers,
             bonus_number=final_bonus_number,
             multiplier=final_multiplier,
+            jackpot=jackpot,
+            jackpot_change=jackpot_change,
+            next_draw_text=next_draw_text,
+            next_draw_timezone=next_draw_timezone,
+            next_draw_relative=next_draw_relative,
             source_url=state["source_url"],
             raw_payload=payload,
             notes=final_notes,
@@ -488,6 +812,11 @@ def scrape_state(page, state: dict, games_by_slug: dict[str, Game]):
             "main_numbers": main_numbers,
             "bonus_number": final_bonus_number,
             "multiplier": final_multiplier,
+            "jackpot": jackpot,
+            "jackpot_change": jackpot_change,
+            "next_draw_text": next_draw_text,
+            "next_draw_timezone": next_draw_timezone,
+            "next_draw_relative": next_draw_relative,
         }
 
         if created_game:
